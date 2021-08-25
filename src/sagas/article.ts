@@ -30,6 +30,10 @@ function* handleGetArticlesListRequest(
 	}
 }
 
+export function* listArticlesSaga() {
+	yield takeLatest(getArticles.request, handleGetArticlesListRequest);
+}
+
 function* syncGetArticleRequest(action: ReturnType<typeof getArticle.request>) {
 	try {
 		const data: RespArticle = yield call(Article.Get, action.payload);
@@ -53,7 +57,6 @@ function* handleGetArticleRequest(
 	}
 }
 
-export default function* main() {
-	yield takeLatest(getArticles.request, handleGetArticlesListRequest);
+export function* itemArticleSaga() {
 	yield takeLatest(getArticle.request, handleGetArticleRequest);
 }

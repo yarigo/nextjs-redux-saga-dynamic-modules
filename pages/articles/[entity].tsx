@@ -1,8 +1,9 @@
 import type { NextPage } from 'next';
-import { useEffect } from 'react';
+import { FunctionComponent, useEffect } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { DynamicModuleLoader } from 'redux-dynamic-modules-react';
 
 import { getArticle } from 'src/ducks/article/actions';
 import {
@@ -11,10 +12,13 @@ import {
 	getArticleFailure,
 } from 'src/ducks/article/selectors';
 import Layout from 'src/layouts/Default';
-import { RootState } from 'src/store';
 import classes from 'public/assets/styles.module.css';
+import {
+	IItemArticleAwareState,
+	itemArticleModule,
+} from 'src/ducks/article/module';
 
-const mapStateToProps = (state: RootState) => ({
+const mapStateToProps = (state: IItemArticleAwareState) => ({
 	article: article(state),
 	request: getArticleRequest(state),
 	failure: getArticleFailure(state),
@@ -74,4 +78,14 @@ const Page: NextPage<PageProps> = (props) => {
 	);
 };
 
-export default connector(Page);
+const ConnectedPage = connector(Page);
+
+const Dynamic: FunctionComponent = (_props) => {
+	return (
+		<DynamicModuleLoader modules={[itemArticleModule()]}>
+			<ConnectedPage />
+		</DynamicModuleLoader>
+	);
+};
+
+export default Dynamic;

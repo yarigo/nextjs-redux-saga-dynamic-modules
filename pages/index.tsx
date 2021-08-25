@@ -1,8 +1,9 @@
 import type { NextPage } from 'next';
-import { useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { DynamicModuleLoader } from 'redux-dynamic-modules-react';
 
 import { getArticles } from 'src/ducks/article/actions';
 import {
@@ -12,11 +13,14 @@ import {
 } from 'src/ducks/article/selectors';
 import { RespArticleItem } from 'src/ducks/article/types';
 import Layout from 'src/layouts/Default';
-import { RootState } from 'src/store';
 import classes from 'public/assets/styles.module.css';
 import Pagination from 'src/components/common/Pagination';
+import {
+	IListArticlesAwareState,
+	listArticlesModule,
+} from 'src/ducks/article/module';
 
-const mapStateToProps = (state: RootState) => ({
+const mapStateToProps = (state: IListArticlesAwareState) => ({
 	articles: articles(state),
 	request: getArticlesListRequest(state),
 	failure: getArticlesListFailure(state),
@@ -124,4 +128,14 @@ const Page: NextPage<PageProps> = (props) => {
 	);
 };
 
-export default connector(Page);
+const ConnectedPage = connector(Page);
+
+const Dynamic: FunctionComponent = (_props) => {
+	return (
+		<DynamicModuleLoader modules={[listArticlesModule()]}>
+			<ConnectedPage />
+		</DynamicModuleLoader>
+	);
+};
+
+export default Dynamic;

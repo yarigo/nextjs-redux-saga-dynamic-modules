@@ -1,8 +1,9 @@
 import type { NextPage } from 'next';
-import { useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { DynamicModuleLoader } from 'redux-dynamic-modules-react';
 
 import { getArticles } from 'src/ducks/category/actions';
 import {
@@ -11,12 +12,15 @@ import {
 	getArticlesListFailure,
 } from 'src/ducks/category/selectors';
 import Layout from 'src/layouts/Default';
-import { RootState } from 'src/store';
 import classes from 'public/assets/styles.module.css';
 import { RespCategoryArticleItem } from 'src/ducks/category/types';
 import Pagination from 'src/components/common/Pagination';
+import {
+	IListArticlesAwareState,
+	listCategoryArticlesModule,
+} from 'src/ducks/category/module';
 
-const mapStateToProps = (state: RootState) => ({
+const mapStateToProps = (state: IListArticlesAwareState) => ({
 	category: articles(state),
 	request: getArticlesListRequest(state),
 	failure: getArticlesListFailure(state),
@@ -124,4 +128,14 @@ const Page: NextPage<PageProps> = (props) => {
 	);
 };
 
-export default connector(Page);
+const ConnectedPage = connector(Page);
+
+const Dynamic: FunctionComponent = (_props) => {
+	return (
+		<DynamicModuleLoader modules={[listCategoryArticlesModule()]}>
+			<ConnectedPage />
+		</DynamicModuleLoader>
+	);
+};
+
+export default Dynamic;

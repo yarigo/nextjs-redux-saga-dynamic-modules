@@ -44,7 +44,7 @@ const handleGetArticlesListCancel = createReducer<
 		(_state, _action) => null
 	);
 
-const listReducer = combineReducers({
+export const listArticlesReducer = combineReducers({
 	request: handleGetArticlesListRequest,
 	success: handleGetArticlesListSuccess,
 	failure: handleGetArticlesListFailure,
@@ -91,16 +91,9 @@ const handleGetArticleCancel = createReducer<
 		(_state, _action) => null
 	);
 
-const itemReducer = combineReducers({
+export const itemArticleReducer = combineReducers({
 	request: handleGetArticleRequest,
 	success: handleGetArticleSuccess,
 	failure: handleGetArticleFailure,
 	cancel: handleGetArticleCancel,
 });
-
-const mainReducer = combineReducers({
-	list: listReducer,
-	item: itemReducer,
-});
-
-export default mainReducer;

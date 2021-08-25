@@ -1,17 +1,23 @@
-import { RootState } from 'src/store';
-
+import { IItemArticleAwareState, IListArticlesAwareState } from './module';
 import { RespArticle, RespArticlesList } from './types';
 
-export const articles = (state: RootState): RespArticlesList | null =>
-	state.article.list.success;
-export const getArticlesListRequest = (state: RootState): boolean =>
-	Boolean(state.article.list.request);
-export const getArticlesListFailure = (state: RootState): string | null =>
-	state.article.list.failure;
+export const articles = (
+	state: IListArticlesAwareState
+): RespArticlesList | null =>
+	state.listArticles ? state.listArticles.success : null;
+export const getArticlesListRequest = (
+	state: IListArticlesAwareState
+): boolean =>
+	state.listArticles ? Boolean(state.listArticles.request) : false;
+export const getArticlesListFailure = (
+	state: IListArticlesAwareState
+): string | null => (state.listArticles ? state.listArticles.failure : null);
 
-export const article = (state: RootState): RespArticle | null =>
-	state.article.item.success;
-export const getArticleRequest = (state: RootState): number | null =>
-	state.article.item.request;
-export const getArticleFailure = (state: RootState): string | null =>
-	state.article.item.failure;
+export const article = (state: IItemArticleAwareState): RespArticle | null =>
+	state.itemArticle ? state.itemArticle.success : null;
+export const getArticleRequest = (
+	state: IItemArticleAwareState
+): number | null => (state.itemArticle ? state.itemArticle.request : null);
+export const getArticleFailure = (
+	state: IItemArticleAwareState
+): string | null => (state.itemArticle ? state.itemArticle.failure : null);

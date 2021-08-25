@@ -33,6 +33,6 @@ function* handleGetArticlesListRequest(
 	}
 }
 
-export default function* main() {
+export function* listArticlesSaga() {
 	yield takeLatest(getArticles.request, handleGetArticlesListRequest);
 }
