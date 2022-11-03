@@ -1,17 +1,30 @@
-import { RootState } from 'src/store';
+import { createSelector } from '@reduxjs/toolkit';
 
-import { RespArticle, RespArticlesList } from './types';
+import { ArticleState } from './module';
+import { initialState } from './reducers';
 
-export const articles = (state: RootState): RespArticlesList | null =>
-	state.article.list.success;
-export const getArticlesListRequest = (state: RootState): boolean =>
-	Boolean(state.article.list.request);
-export const getArticlesListFailure = (state: RootState): string | null =>
-	state.article.list.failure;
+namespace ArticleSelectors {
+  /**
+   * Return article.
+   */
+  export const article = createSelector(
+    [
+      (state: Partial<ArticleState>) =>
+        state.article ? state.article : initialState,
+    ],
+    (state) => state.article
+  );
 
-export const article = (state: RootState): RespArticle | null =>
-	state.article.item.success;
-export const getArticleRequest = (state: RootState): number | null =>
-	state.article.item.request;
-export const getArticleFailure = (state: RootState): string | null =>
-	state.article.item.failure;
+  /**
+   * Return articles list.
+   */
+  export const articles = createSelector(
+    [
+      (state: Partial<ArticleState>) =>
+        state.article ? state.article : initialState,
+    ],
+    (state) => state.articles
+  );
+}
+
+export { ArticleSelectors };

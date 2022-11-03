@@ -1,31 +1,29 @@
-import { FunctionComponent, ReactElement } from 'react';
+import { FunctionComponent, memo, ReactElement, ReactNode } from 'react';
 import Head from 'next/head';
-
 import classes from 'public/assets/styles.module.css';
 
 export type LayoutProps = {
-	title?: string;
-	description?: ReactElement;
+  title?: string;
+  description?: ReactElement;
+  children?: ReactNode;
 };
 
-const Default: FunctionComponent<LayoutProps> = (props) => {
-	const { title, description, children } = props;
+const Layout: FunctionComponent<LayoutProps> = (props) => {
+  const { title = 'Мой блог', description, children } = props;
 
-	return (
-		<>
-			<Head>
-				<title>{title}</title>
-			</Head>
+  return (
+    <>
+      <Head>
+        <title>{title}</title>
+      </Head>
 
-			{description && <div className={classes.description}>{description}</div>}
+      {description && <div className={classes.description}>{description}</div>}
 
-			<main className={classes.main}>{children}</main>
-		</>
-	);
+      <main className={classes.main}>{children}</main>
+    </>
+  );
 };
 
-Default.defaultProps = {
-	title: 'Мой блог',
-};
+Layout.displayName = 'Layout';
 
-export default Default;
+export default memo(Layout);

@@ -1,127 +1,93 @@
+import { useEffect } from 'react';
 import type { NextPage } from 'next';
-import { useEffect, useMemo, useState } from 'react';
-import { connect, ConnectedProps } from 'react-redux';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-
-import { getArticles } from 'src/ducks/category/actions';
-import {
-	articles,
-	getArticlesListRequest,
-	getArticlesListFailure,
-} from 'src/ducks/category/selectors';
-import Layout from 'src/layouts/Default';
-import { RootState } from 'src/store';
+import { useCategory } from '@hooks/store/useCategory';
 import classes from 'public/assets/styles.module.css';
-import { RespCategoryArticleItem } from 'src/ducks/category/types';
+
 import Pagination from 'src/components/common/Pagination';
+import Layout from 'src/layouts/Default';
+import { PublicWrapper } from 'src/ssr/PublicWrapper';
+import { storeWrapper } from 'src/store';
 
-const mapStateToProps = (state: RootState) => ({
-	category: articles(state),
-	request: getArticlesListRequest(state),
-	failure: getArticlesListFailure(state),
-});
-
-const mapDispatchToProps = {
-	requestGetArticles: getArticles.request,
-	cancelGetArticles: getArticles.cancel,
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-
-interface PageProps extends ConnectedProps<typeof connector> {}
+interface PageProps {
+  /**
+   * Category id.
+   */
+  entity: number;
+  /**
+   * Page number.
+   */
+  page: number;
+}
 
 const Page: NextPage<PageProps> = (props) => {
-	const { requestGetArticles, cancelGetArticles, category, request, failure } =
-		props;
+  const { entity, page } = props;
 
-	const [items, setItems] = useState<RespCategoryArticleItem[] | null>(null);
-	const [entity, setEntity] = useState<number>(-1);
-	const [page, setPage] = useState<number>(-1);
-	const [next, setNext] = useState<boolean>(false);
+  const { get, abort, request, success: category, failure } = useCategory();
 
-	const router = useRouter();
+  useEffect(() => {
+    get({ category: entity, page });
 
-	useEffect(() => {
-		return () => {
-			cancelGetArticles();
-		};
-	}, []);
+    return () => {
+      abort();
+    };
+  }, [abort, entity, get, page]);
 
-	useMemo(() => {
-		const query = router.query['page'];
+  return (
+    <Layout>
+      <Link href='/'>На главную</Link>
 
-		if (typeof query !== 'undefined') {
-			if (Array.isArray(query)) {
-				setPage(parseInt(query[0], 10));
-			} else {
-				setPage(parseInt(query, 10));
-			}
-		} else {
-			setPage(1);
-		}
-	}, [router.query['page']]);
+      {failure && <h3>Публикации не найдены.</h3>}
 
-	useMemo(() => {
-		const query = router.query['entity'];
+      {request ? <p>Загрузка...</p> : category && <h1>{category.name}</h1>}
 
-		if (query && !Array.isArray(query)) {
-			setEntity(parseInt(query, 10));
-		} else if (entity >= 0) {
-			setEntity(-1);
-		}
-	}, [router.query['entity']]);
+      {category && category.items && category.items.length > 0 ? (
+        <>
+          <div className={classes.list}>
+            {category.items.map((article) => (
+              <article key={article.id} className={classes.announce}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img alt={article.name} src='/assets/cat.jpg' />
+                <header>
+                  <Link href={`/articles/${article.id}`}>{article.name}</Link>
+                </header>
+                <div>{article.announce}</div>
+              </article>
+            ))}
+          </div>
 
-	useEffect(() => {
-		if (entity > 0 && page > 0) {
-			requestGetArticles({ category: entity, page });
-		} else if (items !== null) {
-			setItems(null);
-		}
-	}, [entity, page]);
-
-	useEffect(() => {
-		if (failure) {
-			setItems(null);
-			setNext(false);
-		} else if (!request && category) {
-			setItems(category.items);
-			setNext(category.next);
-		}
-	}, [category, failure]);
-
-	return (
-		<Layout>
-			<Link href='/'>На главную</Link>
-
-			{failure && <h3>Публикации не найдены.</h3>}
-
-			{Boolean(request) ? (
-				<p>Загрузка...</p>
-			) : (
-				category && <h1>{category.name}</h1>
-			)}
-
-			{!Boolean(request) && items && items.length > 0 ? (
-				<>
-					<div className={classes.list}>
-						{items.map((article) => (
-							<article key={article.id} className={classes.announce}>
-								{/* eslint-disable-next-line @next/next/no-img-element */}
-								<img alt={article.name} src='/assets/cat.jpg' />
-								<header>
-									<Link href={`/articles/${article.id}`}>{article.name}</Link>
-								</header>
-								<div>{article.announce}</div>
-							</article>
-						))}
-					</div>
-
-					<Pagination url={`/categories/${entity}`} page={page} next={next} />
-				</>
-			) : null}
-		</Layout>
-	);
+          <Pagination
+            url={`/categories/${entity}`}
+            page={page}
+            next={category.next}
+          />
+        </>
+      ) : null}
+    </Layout>
+  );
 };
 
-export default connector(Page);
+export const getServerSideProps = storeWrapper.getServerSideProps((store) =>
+  PublicWrapper(store, async (_store, ctx) => {
+    const { query } = ctx;
+
+    let entity = -1;
+    let page = 1;
+
+    const entityQuery = query['entity'];
+
+    if (entityQuery && !Array.isArray(entityQuery)) {
+      entity = parseInt(entityQuery, 10);
+    }
+
+    const pageQuery = query['page'];
+
+    if (pageQuery && !Array.isArray(pageQuery)) {
+      page = parseInt(pageQuery, 10);
+    }
+
+    return { props: { entity, page } };
+  })
+);
+
+export default Page;

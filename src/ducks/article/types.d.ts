@@ -1,28 +1,55 @@
-export type RespArticleCategory = {
-	id: number;
-	name: string;
-};
+import { RespArticle, RespArticlesList } from 'src/api/article/types';
 
-export type RespArticle = {
-	id: number;
-	name: string;
-	content: string;
-	category: RespArticleCategory;
-};
-
-export type RespArticleItemCategory = {
-	id: number;
-	name: string;
-};
-
-export type RespArticleItem = {
-	id: number;
-	name: string;
-	announce: string;
-	category: RespArticleItemCategory;
-};
-
-export type RespArticlesList = {
-	items: RespArticleItem[] | null;
-	next: boolean;
-};
+// Initial state properties.
+export interface InitialState {
+  /**
+   * Article data.
+   *
+   * @default null
+   */
+  article: {
+    /**
+     * Request.
+     *
+     * @default false
+     */
+    request: boolean;
+    /**
+     * Success.
+     *
+     * @default null
+     */
+    success: RespArticle | null;
+    /**
+     * Failure.
+     *
+     * @default false
+     */
+    failure: boolean;
+  };
+  /**
+   * Articles list.
+   *
+   * @default null
+   */
+  articles: {
+    /**
+     * Request.
+     *
+     * @default false
+     */
+    request: boolean;
+    /**
+     * Success.
+     *
+     * @default null
+     */
+    success: RespArticlesList | null;
+    /**
+     * Failure.
+     *
+     * @default false
+     */
+    failure: boolean;
+  };
+}

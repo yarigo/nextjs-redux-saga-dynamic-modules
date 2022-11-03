@@ -1,10 +1,19 @@
-import { RootState } from 'src/store';
-import { ReqCategoryArticles, RespCategoryArticlesList } from './types';
+import { createSelector } from '@reduxjs/toolkit';
 
-export const articles = (state: RootState): RespCategoryArticlesList | null =>
-	state.category.list.success;
-export const getArticlesListRequest = (
-	state: RootState
-): ReqCategoryArticles | null => state.category.list.request;
-export const getArticlesListFailure = (state: RootState): string | null =>
-	state.category.list.failure;
+import { CategoryState } from './module';
+import { initialState } from './reducers';
+
+namespace CategorySelectors {
+  /**
+   * Return articles list.
+   */
+  export const articles = createSelector(
+    [
+      (state: Partial<CategoryState>) =>
+        state.category ? state.category : initialState,
+    ],
+    (state) => state.articles
+  );
+}
+
+export { CategorySelectors };

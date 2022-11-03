@@ -1,6 +1,32 @@
 {
-	"extends": "next/core-web-vitals",
-	"rules": {
-		"react-hooks/exhaustive-deps": "off"
-	}
+  "extends": ["next/core-web-vitals"],
+  "plugins": ["simple-import-sort"],
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+    // simple-import-sort
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.js", "**/*.ts", "**/*.tsx"],
+      "rules": {
+        "simple-import-sort/imports": [
+          "error",
+          {
+            "groups": [
+              ["^react$", "^next", "^@", "^[a-z]"],
+              // Packages starting with `~`
+              ["^~"],
+              // Imports starting with `src/`
+              ["^src/(?!/?$)"],
+              // Imports starting with `./`
+              ["^\\./(?=.*/)(?!/?$)", "^\\.(?!/?$)", "^\\./?$"]
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

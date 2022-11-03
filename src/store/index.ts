@@ -1,25 +1,14 @@
-import { createStore, applyMiddleware } from 'redux';
-import { StateType } from 'typesafe-actions';
-import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
-import createSagaMiddleware from 'redux-saga';
+import { createWrapper } from 'next-redux-wrapper';
+import { appModule } from '@ducks/app';
 
-import { rootReducer } from './root-reducer';
-import rootSaga from 'src/sagas';
+import { createStore } from './manager';
 
-export type RootState = StateType<typeof rootReducer>;
-
-const sagaMiddleware = createSagaMiddleware<RootState>();
-
-const composeEnhancers = composeWithDevTools({
-	trace: true,
-	traceLimit: 10,
+export const store = createStore({
+  reducer: [appModule],
+  verbose:
+    process.env.NODE_ENV === 'development' ||
+    (process.env.NODE_ENV === 'production' &&
+      process.env.NEXT_PUBLIC_APP_ENV === 'STAGING'),
 });
 
-const store = createStore(
-	rootReducer,
-	composeEnhancers(applyMiddleware(sagaMiddleware))
-);
-
-sagaMiddleware.run(rootSaga);
-
-export default store;
+export const storeWrapper = createWrapper<typeof store>(() => store);

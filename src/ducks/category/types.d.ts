@@ -1,17 +1,30 @@
-export type RespCategoryArticleItem = {
-	id: number;
-	name: string;
-	announce: string;
-};
+import { RespCategoryArticlesList } from 'src/api/category/types';
 
-export type RespCategoryArticlesList = {
-	id: number;
-	name: string;
-	items: RespCategoryArticleItem[] | null;
-	next: boolean;
-};
-
-export type ReqCategoryArticles = {
-	category: number;
-	page: number;
-};
+// Initial state properties.
+export interface InitialState {
+  /**
+   * Articles list.
+   *
+   * @default null
+   */
+  articles: {
+    /**
+     * Request.
+     *
+     * @default false
+     */
+    request: boolean;
+    /**
+     * Success.
+     *
+     * @default null
+     */
+    success: RespCategoryArticlesList | null;
+    /**
+     * Failure.
+     *
+     * @default false
+     */
+    failure: boolean;
+  };
+}
